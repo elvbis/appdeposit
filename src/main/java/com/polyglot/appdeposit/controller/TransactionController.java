@@ -2,6 +2,7 @@ package com.polyglot.appdeposit.controller;
 
 
 import com.polyglot.appdeposit.dto.TransactionRequest;
+import com.polyglot.appdeposit.message.TransactionMessagePublish;
 import com.polyglot.appdeposit.model.TransactionModel;
 import com.polyglot.appdeposit.service.ITransactionService;
 import org.slf4j.Logger;
@@ -21,6 +22,9 @@ public class TransactionController {
     @Autowired
     ITransactionService transactionService;
 
+    @Autowired
+    TransactionMessagePublish transactionMessagePublish;
+
     Logger logger = LoggerFactory.getLogger(TransactionController.class);
 
     @PostMapping("/deposit")
@@ -32,6 +36,7 @@ public class TransactionController {
         transactionModel.setAmount(request.getAmount());
         transactionModel.setType("deposit");
         transactionModel = transactionService.add(transactionModel);
+        transactionMessagePublish.sendDepositEvent(transactionModel);
         logger.info("transactionModel {}",transactionModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionModel);
 
